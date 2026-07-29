@@ -28,7 +28,7 @@ const MusicScreen = () => {
       <View style={styles.ipod}>
         <View style={styles.screen}>
             <View style={styles.statusBar}>
-                <Text style={styles.statusBarText}>MENU</Text>
+                <Text style={styles.statusBarText}>PLAYING NOW</Text>
                 <Text>🔋</Text>
             </View>
             <View style={styles.menuRow}>
