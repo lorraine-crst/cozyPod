@@ -1,7 +1,12 @@
-import { View, Text, Image, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import TrackPlayer, { useProgress, usePlaybackState, State } from 'react-native-track-player';
+import TrackPlayer, { useProgress } from 'react-native-track-player';
 import { tracks } from '../data/tracks';
+import IpodShell from '../components/IpodShell';
+import IpodScreen from '../components/IpodScreen';
+import ClickWheel from '../components/ClickWheel';
+import { usePlaybackToggle } from '../hooks/usePlaybackToggle';
+import { colors, fonts } from '../theme';
 
 const albuns = [
   require('../../assets/imgs/img1.jpeg'),
@@ -27,8 +32,7 @@ const MusicScreen = ({ route, navigation }: { route: any; navigation: any }) => 
   }, []);
 
   const { position, duration } = useProgress();
-  const playbackState = usePlaybackState();
-  const isPlaying = playbackState.state === State.Playing;
+  const { isPlaying, togglePlay } = usePlaybackToggle();
 
   useEffect(() => {
     if (!track) return;
@@ -45,10 +49,6 @@ const MusicScreen = ({ route, navigation }: { route: any; navigation: any }) => 
     })();
     return () => { mounted = false; };
   }, [trackId]);
-
-  function togglePlay() {
-    isPlaying ? TrackPlayer.pause() : TrackPlayer.play();
-  }
 
   function fmt(t: number) {
     const m = Math.floor(t / 60);
@@ -80,106 +80,53 @@ const MusicScreen = ({ route, navigation }: { route: any; navigation: any }) => 
   }
 
   return (
-    <View style={styles.page}>
-      <View style={styles.ipod}>
-        <View style={styles.screen}>
-          <View style={styles.statusBar}>
-            <Text style={styles.statusBarText}>PLAYING NOW</Text>
-            <Text>🔋</Text>
-          </View>
-          <View style={styles.menuRow}>
-            <View style={styles.nowPlaying}>
-              <Image style={styles.albumArt} source={albuns[indiceAlbum]} />
-              <View style={styles.trackInfo}>
-                <Text style={styles.trackTitle}>{track.title}</Text>
-                <Text style={styles.trackArtist}>{track.artist}</Text>
-                <Text style={styles.trackAlbum}>{track.album}</Text>
-              </View>
-            </View>
-            <View style={styles.progressBar}>
-              <View
-                style={[
-                  styles.progressFill,
-                  { width: duration ? `${(position / duration) * 100}%` : '0%' },
-                ]}
-              />
-            </View>
-            <View style={styles.timeRow}>
-              <Text>{fmt(position)}</Text>
-              <Text>{fmt(duration)}</Text>
+    <IpodShell>
+      <IpodScreen title="PLAYING NOW">
+        <View style={styles.menuRow}>
+          <View style={styles.nowPlaying}>
+            <Image style={styles.albumArt} source={albuns[indiceAlbum]} />
+            <View style={styles.trackInfo}>
+              <Text style={styles.trackTitle}>{track.title}</Text>
+              <Text style={styles.trackArtist}>{track.artist}</Text>
+              <Text style={styles.trackAlbum}>{track.album}</Text>
             </View>
           </View>
+          <View style={styles.progressBar}>
+            <View
+              style={[
+                styles.progressFill,
+                { width: duration ? `${(position / duration) * 100}%` : '0%' },
+              ]}
+            />
+          </View>
+          <View style={styles.timeRow}>
+            <Text>{fmt(position)}</Text>
+            <Text>{fmt(duration)}</Text>
+          </View>
         </View>
-
-        <View style={styles.clickWhell}>
-          <Pressable style={[styles.labelBase, styles.menu]} onPress={() => navigation.popToTop()}>
-            <Text style={styles.labelText}>MENU</Text>
-          </Pressable>
-          <Pressable style={[styles.labelBase, styles.prev]} onPress={goToPrev}>
-            <Text style={styles.labelText}>⏮</Text>
-          </Pressable>
-          <Pressable style={[styles.labelBase, styles.next]} onPress={goToNext}>
-            <Text style={styles.labelText}>⏭</Text>
-          </Pressable>
-          <Pressable style={[styles.labelBase, styles.play]} onPress={togglePlay}>
-            <Text style={styles.labelText}>{isPlaying ? '⏸' : '▶'}</Text>
-          </Pressable>
-          <View style={styles.centerButton} />
-        </View>
-      </View>
-    </View>
+      </IpodScreen>
+      <ClickWheel
+        onMenu={() => navigation.popToTop()}
+        onPrev={goToPrev}
+        onNext={goToNext}
+        onPlay={togglePlay}
+        isPlaying={isPlaying}
+      />
+    </IpodShell>
   );
 };
 
 const styles = StyleSheet.create({
   page: {
     flex: 1,
-    backgroundColor: '#4D3B36',
+    backgroundColor: colors.bg,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  ipod: {
-    width: '80%',
-    backgroundColor: '#F0EAD6',
-    borderRadius: 32,
-    shadowColor: '#000000',
-    shadowRadius: 20,
-    padding: 20,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: 24,
-  },
-  screen: {
-    width: '100%',
-    height: 240,
-    backgroundColor: '#D6D9E8',
-    borderWidth: 3,
-    borderColor: '#2A2A2A',
-    borderStyle: 'solid',
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  statusBar: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    width: '100%',
-    backgroundColor: '#EB613B',
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    alignItems: 'center',
-  },
-  statusBarText: {
-    color: '#E8E2CE',
-    fontSize: 8,
-    fontFamily: 'PressStart2P-Regular',
-  },
   nowPlaying: {
-    display: 'flex',
+    flexDirection: 'row',
     gap: 8,
     marginTop: 4,
-    flexDirection: 'row',
   },
   menuRow: {
     flex: 1,
@@ -196,23 +143,19 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     justifyContent: 'center',
   },
-  trackCount: {
-    fontSize: 8,
-    color: '#6B6B6B',
-  },
   trackTitle: {
     fontWeight: 'bold',
-    fontFamily: 'PressStart2P-Regular',
+    fontFamily: fonts.pixel,
   },
   trackArtist: {
     fontSize: 9,
     color: '#2A2A2A',
-    fontFamily: 'PressStart2P-Regular',
+    fontFamily: fonts.pixel,
   },
   trackAlbum: {
     fontSize: 8,
-    color: '#6B6B6B',
-    fontFamily: 'PressStart2P-Regular',
+    color: colors.label,
+    fontFamily: fonts.pixel,
   },
   progressBar: {
     width: '100%',
@@ -227,51 +170,10 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   timeRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
     flexDirection: 'row',
+    justifyContent: 'space-between',
     width: '100%',
     marginTop: 2,
-  },
-  clickWhell: {
-    width: 220,
-    height: 220,
-    backgroundColor: '#E8E2CE',
-    borderRadius: '50%',
-    position: 'relative',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  centerButton: {
-    width: 80,
-    height: 80,
-    backgroundColor: '#F8F5CE',
-    borderRadius: '50%',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-  },
-  labelBase: {
-    position: 'absolute',
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: '#6B6B6B',
-  },
-  labelText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#6B6B6B',
-  },
-  menu: {
-    top: 14,
-  },
-  play: {
-    bottom: 14,
-  },
-  prev: {
-    left: 18,
-  },
-  next: {
-    right: 18,
   },
 });
 

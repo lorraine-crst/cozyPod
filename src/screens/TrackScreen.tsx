@@ -1,143 +1,63 @@
 import { View, Text, FlatList, Pressable, StyleSheet } from 'react-native';
+import { useState } from 'react';
 import { tracks } from '../data/tracks';
-import TrackPlayer, { usePlaybackState, State } from 'react-native-track-player';
-
+import IpodShell from '../components/IpodShell';
+import IpodScreen from '../components/IpodScreen';
+import ClickWheel from '../components/ClickWheel';
+import { usePlaybackToggle } from '../hooks/usePlaybackToggle';
+import { colors, fonts } from '../theme';
 const TracksScreen = ({ navigation }: { navigation: any }) => {
-  const playbackState = usePlaybackState();
-  const isPlaying = playbackState.state === State.Playing;
+  const { isPlaying } = usePlaybackToggle();
+  const [selectedId, setSelectedId] = useState(tracks[0]?.id ?? null);
 
-  function togglePlay() {
-    isPlaying ? TrackPlayer.pause() : TrackPlayer.play();
+  function playTrack(id: string) {
+    setSelectedId(id);
+    navigation.navigate('Now Playing', { trackId: id });
   }
-  
+
+  function confirmSelection() {
+    if (!selectedId) return;
+    navigation.navigate('Now Playing', { trackId: selectedId });
+  }
+
   return (
-    <View style={styles.page}>
-      <View style={styles.ipod}>
-        <View style={styles.screen}>
-          <View style={styles.statusBar}>
-            <Text style={styles.statusBarText}>SONGS</Text>
-            <Text>🔋</Text>
-          </View>
-          <View style={styles.menuRow}>
-            <FlatList
-              style={styles.itensContainer}
-              data={tracks}
-              keyExtractor={(item, index) => item.title ?? String(index)}
-              renderItem={({ item }) => (
+    <IpodShell>
+      <IpodScreen title="SONGS">
+        <View style={styles.menuRow}>
+          <FlatList
+            style={styles.itensContainer}
+            data={tracks}
+            extraData={selectedId}
+            keyExtractor={(item, index) => item.title ?? String(index)}
+            renderItem={({ item }) => {
+              const selected = item.id === selectedId;
+              return (
                 <Pressable
-                  style={styles.trackRow}
-                  onPress={() => navigation.navigate('Now Playing', { trackId: item.id })}>
-                  <Text style={styles.trackName}>{item.title}</Text>
+                  style={[styles.trackRow, selected && styles.trackRowSelected]}
+                  onPress={() => playTrack(item.id)}>
+                  <Text style={[styles.trackName, selected && styles.trackNameSelected]}>
+                    {item.title}
+                  </Text>
                 </Pressable>
-              )}
-            />
-          </View>
+              );
+            }}
+          />
         </View>
-        <View style={styles.clickWhell}>
-          <Pressable style={[styles.labelBase, styles.menu]} onPress={() => navigation.popToTop()}>
-            <Text style={styles.labelText}>MENU</Text>
-          </Pressable>
-          <Text style={[styles.labelBase, styles.prev]}>⏮</Text>
-          <Text style={[styles.labelBase, styles.next]}>⏭</Text>
-          <Pressable style={[styles.labelBase, styles.play]} onPress={togglePlay}>
-            <Text style={styles.labelText}>{isPlaying ? '⏸' : '▶'}</Text>
-          </Pressable>
-          <View style={[styles.centerButton]}></View>
-        </View>
-      </View>
-    </View>
+      </IpodScreen>
+      <ClickWheel
+        onMenu={() => navigation.popToTop()}
+        onSelect={confirmSelection}
+        onPlay={confirmSelection}
+        isPlaying={isPlaying}
+      />
+    </IpodShell>
   );
 };
 
 const styles = StyleSheet.create({
-  page: {
-    flex: 1,
-    backgroundColor: '#4D3B36',
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  ipod: {
-    width: '80%',
-    backgroundColor: '#F0EAD6',
-    borderRadius: 32,
-    shadowColor: '#000000',
-    shadowRadius: 20,
-    padding: 20,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: 24
-
-  },
-  screen: {
-    width: '100%',
-    height: 240,
-    backgroundColor: '#D6D9E8',
-    borderWidth: 3,
-    borderColor: '#2A2A2A',
-    borderStyle: 'solid',
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  statusBar: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    width: '100%',
-    backgroundColor: '#EB613B',
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    alignItems: 'center'
-  },
-  statusBarText: {
-    color: '#E8E2CE',
-    fontSize: 8,
-    fontFamily: 'PressStart2P-Regular'
-  },
   menuRow: {
     flex: 1,
     width: '100%',
-  },
-  clickWhell: {
-    width: 220,
-    height: 220,
-    backgroundColor: '#E8E2CE',
-    borderRadius: '50%',
-    position: 'relative',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  centerButton: {
-    width: 80,
-    height: 80,
-    backgroundColor: '#F8F5CE',
-    borderRadius: '50%',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-  },
-  labelBase: {
-    position: 'absolute',
-    fontSize: 10,
-    fontFamily: 'PressStart2P-Regular',
-    fontWeight: 'bold',
-    color: '#6B6B6B'
-  },
-  menu: {
-    top: 14
-  },
-  play: {
-    bottom: 14
-  },
-  prev: {
-    left: 18
-  },
-  next: {
-    right: 18
-  },
-  labelText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#6B6B6B',
   },
   itensContainer: {
     flex: 1,
@@ -147,13 +67,18 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#5C4A42',
-
+    borderBottomColor: colors.trackBorder,
+  },
+  trackRowSelected: {
+    backgroundColor: colors.header,
   },
   trackName: {
-    fontFamily: 'PressStart2P-Regular',
+    fontFamily: fonts.pixel,
     fontSize: 10,
-    color: '#4D3B36',
+    color: colors.trackText,
+  },
+  trackNameSelected: {
+    color: colors.headerText,
   },
 });
 

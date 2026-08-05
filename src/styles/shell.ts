@@ -1,0 +1,77 @@
+import { StyleSheet } from 'react-native';
+import { colors, fonts } from '../theme';
+
+export const shell = StyleSheet.create({
+  page: {
+    flex: 1,
+    backgroundColor: colors.bg,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  ipod: {
+    width: '80%',
+    backgroundColor: colors.cream,
+    borderRadius: 32,
+    shadowColor: '#000000',
+    shadowRadius: 20,
+    padding: 20,
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 24,
+  },
+  screen: {
+    width: '100%',
+    height: 240,
+    backgroundColor: colors.screenBg,
+    borderWidth: 3,
+    borderColor: colors.screenBorder,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  statusBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    backgroundColor: colors.header,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    alignItems: 'center',
+  },
+  statusBarText: {
+    color: colors.headerText,
+    fontSize: 8,
+    fontFamily: fonts.pixel,
+  },
+  clickWheel: {
+    width: 220,
+    height: 220,
+    backgroundColor: colors.wheelBg,
+    borderRadius: '50%',
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  centerButton: {
+    width: 80,
+    height: 80,
+    backgroundColor: colors.centerBtn,
+    borderRadius: '50%',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+  },
+  labelBase: {
+    position: 'absolute',
+    fontSize: 10,
+    fontFamily: fonts.pixel,
+    fontWeight: 'bold',
+    color: colors.label,
+  },
+  labelText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: colors.label,
+  },
+  menu: { top: 14 },
+  play: { bottom: 14 },
+  prev: { left: 18 },
+  next: { right: 18 },
+});
