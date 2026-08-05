@@ -64,6 +64,21 @@ const MusicScreen = ({ route, navigation }: { route: any; navigation: any }) => 
     );
   }
 
+  const songs = tracks.filter(t => t.album);
+  const currentIndex = songs.findIndex(s => s.id === track?.id);
+
+  function goToNext() {
+    if (currentIndex === -1) return;
+    const next = songs[(currentIndex + 1) % songs.length];
+    navigation.setParams({ trackId: next.id });
+  }
+
+  function goToPrev() {
+    if (currentIndex === -1) return;
+    const prev = songs[(currentIndex - 1 + songs.length) % songs.length];
+    navigation.setParams({ trackId: prev.id });
+  }
+
   return (
     <View style={styles.page}>
       <View style={styles.ipod}>
@@ -100,8 +115,12 @@ const MusicScreen = ({ route, navigation }: { route: any; navigation: any }) => 
           <Pressable style={[styles.labelBase, styles.menu]} onPress={() => navigation.popToTop()}>
             <Text style={styles.labelText}>MENU</Text>
           </Pressable>
-          <Text style={[styles.labelBase, styles.prev]}>⏮</Text>
-          <Text style={[styles.labelBase, styles.next]}>⏭</Text>
+          <Pressable style={[styles.labelBase, styles.prev]} onPress={goToPrev}>
+            <Text style={styles.labelText}>⏮</Text>
+          </Pressable>
+          <Pressable style={[styles.labelBase, styles.next]} onPress={goToNext}>
+            <Text style={styles.labelText}>⏭</Text>
+          </Pressable>
           <Pressable style={[styles.labelBase, styles.play]} onPress={togglePlay}>
             <Text style={styles.labelText}>{isPlaying ? '⏸' : '▶'}</Text>
           </Pressable>

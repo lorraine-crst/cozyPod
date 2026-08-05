@@ -37,7 +37,7 @@ const OptionsScreen = ({ navigation }: { navigation: any }) => {
             </Pressable>
             <Pressable
               style={[styles.menuOptions, selecionado === 'Setting' && styles.menuOptionSelected]}
-              onPress={() => setSelecionado('Setting')}>
+              onPress={() => { setSelecionado('Setting'); navigation.navigate('Settings'); }}>
               <Text style={[styles.textOption, selecionado === 'Setting' && styles.textOptionSelected]}
                 onPress={() => setSelecionado('Setting')}>Settings</Text>
               <Text style={[styles.iconOption, selecionado === 'Setting' && styles.textOptionSelected]}>▶</Text>

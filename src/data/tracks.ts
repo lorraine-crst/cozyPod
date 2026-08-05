@@ -62,4 +62,9 @@ export const tracks = [
     album: 'Undertale Soundtrack',
     url: require('../../assets/tracks/track9.mp3'),
   },
+  {
+    id: '10',
+    title: 'Click Sound',
+    url: require('../../assets/tracks/clickSound.mp3'),
+  },
 ];

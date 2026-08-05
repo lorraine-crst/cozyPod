@@ -5,6 +5,7 @@ import OptionsScreen from './src/screens/OptionsScreen';
 import TracksScreen from './src/screens/TrackScreen';
 import { useEffect } from 'react';
 import TrackPlayer from 'react-native-track-player';
+import SettingsScreen from './src/screens/SettingsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -18,6 +19,7 @@ const App = () => {
         <Stack.Screen name="Options" component={OptionsScreen} />
         <Stack.Screen name="Now Playing" component={MusicScreen} />
         <Stack.Screen name="Songs" component={TracksScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
       </Stack.Navigator>
      </NavigationContainer>
   );
