@@ -1,8 +1,15 @@
 import { View, Text, FlatList, Pressable, StyleSheet } from 'react-native';
 import { tracks } from '../data/tracks';
-
+import TrackPlayer, { usePlaybackState, State } from 'react-native-track-player';
 
 const TracksScreen = ({ navigation }: { navigation: any }) => {
+  const playbackState = usePlaybackState();
+  const isPlaying = playbackState.state === State.Playing;
+
+  function togglePlay() {
+    isPlaying ? TrackPlayer.pause() : TrackPlayer.play();
+  }
+  
   return (
     <View style={styles.page}>
       <View style={styles.ipod}>
@@ -17,7 +24,9 @@ const TracksScreen = ({ navigation }: { navigation: any }) => {
               data={tracks}
               keyExtractor={(item, index) => item.title ?? String(index)}
               renderItem={({ item }) => (
-                <Pressable style={styles.trackRow} onPress={() => navigation.navigate('Songs')}>
+                <Pressable
+                  style={styles.trackRow}
+                  onPress={() => navigation.navigate('Now Playing', { trackId: item.id })}>
                   <Text style={styles.trackName}>{item.title}</Text>
                 </Pressable>
               )}
@@ -25,10 +34,14 @@ const TracksScreen = ({ navigation }: { navigation: any }) => {
           </View>
         </View>
         <View style={styles.clickWhell}>
-          <Text style={[styles.labelBase, styles.menu]}>MENU</Text>
+          <Pressable style={[styles.labelBase, styles.menu]} onPress={() => navigation.popToTop()}>
+            <Text style={styles.labelText}>MENU</Text>
+          </Pressable>
           <Text style={[styles.labelBase, styles.prev]}>⏮</Text>
           <Text style={[styles.labelBase, styles.next]}>⏭</Text>
-          <Text style={[styles.labelBase, styles.play]}>▶</Text>
+          <Pressable style={[styles.labelBase, styles.play]} onPress={togglePlay}>
+            <Text style={styles.labelText}>{isPlaying ? '⏸' : '▶'}</Text>
+          </Pressable>
           <View style={[styles.centerButton]}></View>
         </View>
       </View>
@@ -82,8 +95,8 @@ const styles = StyleSheet.create({
     fontFamily: 'PressStart2P-Regular'
   },
   menuRow: {
-   flex: 1,
-   width: '100%',
+    flex: 1,
+    width: '100%',
   },
   clickWhell: {
     width: 220,
@@ -121,9 +134,14 @@ const styles = StyleSheet.create({
   next: {
     right: 18
   },
+  labelText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#6B6B6B',
+  },
   itensContainer: {
-   flex: 1,
-   width: '100%',
+    flex: 1,
+    width: '100%',
   },
   trackRow: {
     paddingVertical: 12,

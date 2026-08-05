@@ -1,9 +1,17 @@
-import {View, Text, StyleSheet, Pressable} from 'react-native';
-import {useState} from 'react';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { useState } from 'react';
+import TrackPlayer, { usePlaybackState, State } from 'react-native-track-player';
 
+const OptionsScreen = ({ navigation }: { navigation: any }) => {
+  const [selecionado, setSelecionado] = useState('Now Playing');
 
-const OptionsScreen = ({navigation}: { navigation: any }) => {
-   const [selecionado, setSelecionado] = useState('Now Playing');
+  const playbackState = usePlaybackState();
+  const isPlaying = playbackState.state === State.Playing;
+
+  function togglePlay() {
+    isPlaying ? TrackPlayer.pause() : TrackPlayer.play();
+  }
+
   return (
     <View style={styles.page}>
       <View style={styles.ipod}>
@@ -13,36 +21,38 @@ const OptionsScreen = ({navigation}: { navigation: any }) => {
             <Text>🔋</Text>
           </View>
           <View style={styles.menuRow}>
-              <Pressable
-                  style={[styles.menuOptions, selecionado === 'Now Playing' && styles.menuOptionSelected]}
-                  onPress={() => {setSelecionado('Now Playing'); navigation.navigate('Now Playing');}}>
-                <Text style={[styles.textOption, selecionado === 'Now Playing' && styles.textOptionSelected]}
-                  onPress={() => setSelecionado('Now Playing')}>Now Playing</Text>
-                <Text style={[styles.iconOption, selecionado === 'Now Playing' && styles.textOptionSelected]}>▶</Text>
-              </Pressable>
             <Pressable
-                  style={[styles.menuOptions, selecionado === 'Songs' && styles.menuOptionSelected]}
-                  onPress={() => {setSelecionado('Songs'); navigation.navigate('Songs');}}>
-                <Text style={[styles.textOption, selecionado === 'Songs' && styles.textOptionSelected]}
-                  onPress={() => setSelecionado('Songs')}>Songs</Text>
-                <Text style={[styles.iconOption, selecionado === 'Songs' && styles.textOptionSelected]}>▶</Text>
+              style={[styles.menuOptions, selecionado === 'Now Playing' && styles.menuOptionSelected]}
+              onPress={() => { setSelecionado('Now Playing'); navigation.navigate('Now Playing'); }}>
+              <Text style={[styles.textOption, selecionado === 'Now Playing' && styles.textOptionSelected]}
+                onPress={() => setSelecionado('Now Playing')}>Now Playing</Text>
+              <Text style={[styles.iconOption, selecionado === 'Now Playing' && styles.textOptionSelected]}>▶</Text>
             </Pressable>
             <Pressable
-                  style={[styles.menuOptions, selecionado === 'Setting' && styles.menuOptionSelected]}
-                  onPress={() => setSelecionado('Setting')}>
-                <Text style={[styles.textOption, selecionado === 'Setting' && styles.textOptionSelected]}
-                  onPress={() => setSelecionado('Setting')}>Settings</Text>
-                <Text style={[styles.iconOption, selecionado === 'Setting' && styles.textOptionSelected]}>▶</Text>
+              style={[styles.menuOptions, selecionado === 'Songs' && styles.menuOptionSelected]}
+              onPress={() => { setSelecionado('Songs'); navigation.navigate('Songs'); }}>
+              <Text style={[styles.textOption, selecionado === 'Songs' && styles.textOptionSelected]}
+                onPress={() => setSelecionado('Songs')}>Songs</Text>
+              <Text style={[styles.iconOption, selecionado === 'Songs' && styles.textOptionSelected]}>▶</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.menuOptions, selecionado === 'Setting' && styles.menuOptionSelected]}
+              onPress={() => setSelecionado('Setting')}>
+              <Text style={[styles.textOption, selecionado === 'Setting' && styles.textOptionSelected]}
+                onPress={() => setSelecionado('Setting')}>Settings</Text>
+              <Text style={[styles.iconOption, selecionado === 'Setting' && styles.textOptionSelected]}>▶</Text>
             </Pressable>
           </View>
         </View>
         <View style={styles.clickWhell}>
-        <Text style={[styles.labelBase, styles.menu]}>MENU</Text>
-        <Text style={[styles.labelBase, styles.prev]}>⏮</Text>
-        <Text style={[styles.labelBase, styles.next]}>⏭</Text>
-        <Text style={[styles.labelBase, styles.play]}>▶</Text>
-        <View style={[styles.centerButton]}></View>
-      </View>
+          <Text style={[styles.labelBase, styles.menu]}>MENU</Text>
+          <Text style={[styles.labelBase, styles.prev]}>⏮</Text>
+          <Text style={[styles.labelBase, styles.next]}>⏭</Text>
+          <Pressable style={[styles.labelBase, styles.play]} onPress={togglePlay}>
+            <Text style={styles.labelText}>{isPlaying ? '⏸' : '▶'}</Text>
+          </Pressable>
+          <View style={[styles.centerButton]}></View>
+        </View>
       </View>
     </View>
   );
@@ -94,14 +104,14 @@ const styles = StyleSheet.create({
     fontSize: 8,
     fontFamily: 'PressStart2P-Regular'
   },
-  menuRow:{
+  menuRow: {
     width: '100%',
     marginTop: 4,
     paddingHorizontal: 10,
-    paddingVertical:10,
+    paddingVertical: 10,
     gap: 4
   },
-  menuOptions:{
+  menuOptions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
@@ -111,21 +121,21 @@ const styles = StyleSheet.create({
     borderRadius: 8
   },
   menuOptionSelected: {
-  backgroundColor: '#EB613B',
+    backgroundColor: '#EB613B',
   },
-  textOption:{
+  textOption: {
     fontFamily: 'PressStart2P-Regular',
     fontSize: 10,
     paddingVertical: 13
   },
-  textOptionSelected:{
+  textOptionSelected: {
     color: '#E8E2CE'
   },
-  iconOption:{
+  iconOption: {
     fontFamily: 'PressStart2P-Regular',
     fontSize: 10
   },
-   clickWhell: {
+  clickWhell: {
     width: 220,
     height: 220,
     backgroundColor: '#E8E2CE',
@@ -149,8 +159,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#6B6B6B'
   },
+  labelText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#6B6B6B',
+  },
   menu: {
-    top:14
+    top: 14
   },
   play: {
     bottom: 14
